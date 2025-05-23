@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export const Register: React.FC = () => {
@@ -8,13 +8,16 @@ export const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const redirect = params.get('redirect') || '/';
   const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await register(email, password, name);
-      navigate('/');
+      navigate(redirect);
     } catch (err) {
       setError('Registration failed. Please try again.');
     }
