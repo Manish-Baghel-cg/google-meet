@@ -15,6 +15,11 @@ export const VideoCall: React.FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if (!meetingId) {
+      console.error('No meeting ID provided');
+      return;
+    }
+
     const initializeMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -50,7 +55,13 @@ export const VideoCall: React.FC = () => {
       }
     });
 
-    socketRef.current.emit('joinMeeting', parseInt(meetingId));
+    const numericMeetingId = parseInt(meetingId);
+    if (isNaN(numericMeetingId)) {
+      console.error('Invalid meeting ID');
+      return;
+    }
+
+    socketRef.current.emit('joinMeeting', numericMeetingId);
 
     socketRef.current.on('user-joined', ({ userId }) => {
       createPeerConnection(userId);
