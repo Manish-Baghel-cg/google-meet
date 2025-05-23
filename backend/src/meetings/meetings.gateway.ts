@@ -152,8 +152,12 @@ export class MeetingsGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   private async verifyToken(token: string): Promise<number | null> {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: number };
-      return decoded.id;
+      if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is not defined');
+        return null;
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { sub: string };
+      return parseInt(decoded.sub);
     } catch (error) {
       console.error('Token verification failed:', error);
       return null;
