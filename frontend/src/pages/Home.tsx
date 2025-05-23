@@ -28,13 +28,18 @@ export const Home: React.FC = () => {
     e.preventDefault();
     if (meetingTitle) {
       try {
-        const response = await fetch(`https://my-meet-124v.onrender.com/meetings/${meetingTitle}`, {
+        const meetingId = parseInt(meetingTitle);
+        if (isNaN(meetingId)) {
+          alert('Please enter a valid numeric meeting ID');
+          return;
+        }
+        const response = await fetch(`https://my-meet-124v.onrender.com/meetings/${meetingId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
         if (response.ok) {
-          navigate(`/meeting/${meetingTitle}`);
+          navigate(`/meeting/${meetingId}`);
         } else {
           alert('Meeting not found');
         }
