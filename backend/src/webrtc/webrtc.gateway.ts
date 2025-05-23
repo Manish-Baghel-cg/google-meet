@@ -11,7 +11,11 @@ import { WsJwtAuthGuard } from '../auth/ws-jwt-auth.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'http://localhost:5173',
+      'https://google-meet-8r70.onrender.com'
+    ],
     credentials: true,
   },
 })

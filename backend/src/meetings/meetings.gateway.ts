@@ -13,7 +13,11 @@ import * as jwt from 'jsonwebtoken';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'http://localhost:5173',
+      'https://google-meet-8r70.onrender.com'
+    ],
     credentials: true,
   },
 })
