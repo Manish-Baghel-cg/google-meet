@@ -3,6 +3,8 @@ import { Home } from './pages/Home';
 import { Meeting } from './pages/Meeting';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Teams } from './pages/Teams';
+import { Chat } from './pages/Chat';
 import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
@@ -24,6 +26,22 @@ function App() {
           element={
             <PrivateRoute>
               <Meeting />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/teams"
+          element={
+            <PrivateRoute>
+              <Teams />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute>
+              <Chat />
             </PrivateRoute>
           }
         />

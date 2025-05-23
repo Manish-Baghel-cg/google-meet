@@ -65,7 +65,8 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Create Meeting Card */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Start a new meeting</h2>
             <button
@@ -76,6 +77,7 @@ export const Home: React.FC = () => {
             </button>
           </div>
 
+          {/* Join Meeting Card */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Join a meeting</h2>
             <form onSubmit={joinMeeting}>
@@ -93,6 +95,28 @@ export const Home: React.FC = () => {
                 Join Meeting
               </button>
             </form>
+          </div>
+
+          {/* Teams Card */}
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Teams</h2>
+            <button
+              onClick={() => navigate('/teams')}
+              className="w-full bg-purple-500 py-3 rounded hover:bg-purple-600"
+            >
+              View Teams
+            </button>
+          </div>
+
+          {/* Chat Card */}
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Chat</h2>
+            <button
+              onClick={() => navigate('/chat')}
+              className="w-full bg-indigo-500 py-3 rounded hover:bg-indigo-600"
+            >
+              Open Chat
+            </button>
           </div>
         </div>
       </div>
