@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 interface Team {
   id: number;
@@ -12,7 +11,6 @@ export const Teams: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamDescription, setNewTeamDescription] = useState('');
-  const { user } = useAuth();
 
   useEffect(() => {
     fetchTeams();
