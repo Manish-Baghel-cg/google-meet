@@ -32,7 +32,7 @@ const useAuth = create<AuthState>((set) => ({
     }
 
     try {
-      const response = await axios.get('https://free-peaches-feel.loca.lt/auth/me', {
+      const response = await axios.get('https://my-meet-124v.onrender.com/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       set({ 
@@ -54,7 +54,7 @@ const useAuth = create<AuthState>((set) => ({
 
   login: async (email: string, password: string) => {
     try {
-      const response = await axios.post('https://free-peaches-feel.loca.lt/auth/login', {
+      const response = await axios.post('https://my-meet-124v.onrender.com/auth/login', {
         email,
         password,
       });
@@ -69,7 +69,7 @@ const useAuth = create<AuthState>((set) => ({
 
   register: async (email: string, password: string, name: string) => {
     try {
-      const response = await axios.post('https://free-peaches-feel.loca.lt/auth/register', {
+      const response = await axios.post('https://my-meet-124v.onrender.com/auth/register', {
         email,
         password,
         name,

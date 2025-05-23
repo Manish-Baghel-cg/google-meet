@@ -43,7 +43,7 @@ export const VideoCall: React.FC = () => {
 
     initializeMedia();
 
-    socketRef.current = io('https://free-peaches-feel.loca.lt', {
+    socketRef.current = io('https://my-meet-124v.onrender.com', {
       withCredentials: true,
     });
 
