@@ -61,11 +61,38 @@ export const VideoCall: React.FC = () => {
       return;
     }
 
+    console.log('Joining meeting:', numericMeetingId);
     socketRef.current.emit('joinMeeting', numericMeetingId);
 
     socketRef.current.on('participantJoined', ({ userId }) => {
       console.log('Participant joined:', userId);
       createPeerConnection(userId);
+    });
+
+    socketRef.current.on('offer', async ({ offer, from }) => {
+      console.log('Received offer from:', from);
+      const pc = createPeerConnection(from);
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      console.log('Sending answer to:', from);
+      socketRef.current?.emit('answer', { target: from, answer });
+    });
+
+    socketRef.current.on('answer', async ({ answer, from }) => {
+      console.log('Received answer from:', from);
+      const pc = peerConnections.current[from];
+      if (pc) {
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+      }
+    });
+
+    socketRef.current.on('ice-candidate', async ({ candidate, from }) => {
+      console.log('Received ICE candidate from:', from);
+      const pc = peerConnections.current[from];
+      if (pc) {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+      }
     });
 
     socketRef.current.on('participantLeft', ({ userId }) => {
@@ -89,28 +116,6 @@ export const VideoCall: React.FC = () => {
       console.error('Socket error:', error);
     });
 
-    socketRef.current.on('offer', async ({ offer, from }) => {
-      const pc = createPeerConnection(from);
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socketRef.current?.emit('answer', { target: from, answer });
-    });
-
-    socketRef.current.on('answer', async ({ answer, from }) => {
-      const pc = peerConnections.current[from];
-      if (pc) {
-        await pc.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
-
-    socketRef.current.on('ice-candidate', async ({ candidate, from }) => {
-      const pc = peerConnections.current[from];
-      if (pc) {
-        await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
-
     return () => {
       localStream?.getTracks().forEach((track) => track.stop());
       Object.values(peerConnections.current).forEach((pc) => pc.close());
@@ -119,6 +124,7 @@ export const VideoCall: React.FC = () => {
   }, [meetingId]);
 
   const createPeerConnection = (userId: string) => {
+    console.log('Creating peer connection for:', userId);
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -131,6 +137,7 @@ export const VideoCall: React.FC = () => {
     });
 
     pc.ontrack = (event) => {
+      console.log('Received track from:', userId);
       setRemoteStreams((prev) => ({
         ...prev,
         [userId]: event.streams[0],
@@ -139,12 +146,29 @@ export const VideoCall: React.FC = () => {
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log('Sending ICE candidate to:', userId);
         socketRef.current?.emit('ice-candidate', {
           target: userId,
           candidate: event.candidate,
         });
       }
     };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', pc.iceConnectionState);
+    };
+
+    // Create and send offer
+    pc.createOffer()
+      .then(offer => pc.setLocalDescription(offer))
+      .then(() => {
+        console.log('Sending offer to:', userId);
+        socketRef.current?.emit('offer', {
+          target: userId,
+          offer: pc.localDescription
+        });
+      })
+      .catch(error => console.error('Error creating offer:', error));
 
     peerConnections.current[userId] = pc;
     return pc;
