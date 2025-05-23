@@ -63,8 +63,30 @@ export const VideoCall: React.FC = () => {
 
     socketRef.current.emit('joinMeeting', numericMeetingId);
 
-    socketRef.current.on('user-joined', ({ userId }) => {
+    socketRef.current.on('participantJoined', ({ userId }) => {
+      console.log('Participant joined:', userId);
       createPeerConnection(userId);
+    });
+
+    socketRef.current.on('participantLeft', ({ userId }) => {
+      console.log('Participant left:', userId);
+      if (peerConnections.current[userId]) {
+        peerConnections.current[userId].close();
+        delete peerConnections.current[userId];
+      }
+      setRemoteStreams((prev) => {
+        const newStreams = { ...prev };
+        delete newStreams[userId];
+        return newStreams;
+      });
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
+    socketRef.current.on('error', (error) => {
+      console.error('Socket error:', error);
     });
 
     socketRef.current.on('offer', async ({ offer, from }) => {
@@ -87,18 +109,6 @@ export const VideoCall: React.FC = () => {
       if (pc) {
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
       }
-    });
-
-    socketRef.current.on('user-left', ({ userId }) => {
-      if (peerConnections.current[userId]) {
-        peerConnections.current[userId].close();
-        delete peerConnections.current[userId];
-      }
-      setRemoteStreams((prev) => {
-        const newStreams = { ...prev };
-        delete newStreams[userId];
-        return newStreams;
-      });
     });
 
     return () => {

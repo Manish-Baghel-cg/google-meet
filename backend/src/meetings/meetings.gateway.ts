@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { MeetingsService } from './meetings.service';
 import { UseGuards } from '@nestjs/common';
 import { WsJwtAuthGuard } from '../auth/ws-jwt-auth.guard';
+import * as jwt from 'jsonwebtoken';
 
 @WebSocketGateway({
   cors: {
@@ -151,10 +152,10 @@ export class MeetingsGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   private async verifyToken(token: string): Promise<number | null> {
     try {
-      // Implement token verification logic here
-      // Return user ID if valid, null if invalid
-      return null; // Placeholder
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: number };
+      return decoded.id;
     } catch (error) {
+      console.error('Token verification failed:', error);
       return null;
     }
   }
