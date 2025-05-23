@@ -7,15 +7,40 @@ export const Home: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const createMeeting = () => {
-    const meetingId = Math.random().toString(36).substring(7);
-    navigate(`/meeting/${meetingId}`);
+  const createMeeting = async () => {
+    try {
+      const response = await fetch('https://my-meet-124v.onrender.com/meetings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ title: 'New Meeting' })
+      });
+      const data = await response.json();
+      navigate(`/meeting/${data.id}`);
+    } catch (error) {
+      console.error('Error creating meeting:', error);
+    }
   };
 
-  const joinMeeting = (e: React.FormEvent) => {
+  const joinMeeting = async (e: React.FormEvent) => {
     e.preventDefault();
     if (meetingTitle) {
-      navigate(`/meeting/${meetingTitle}`);
+      try {
+        const response = await fetch(`https://my-meet-124v.onrender.com/meetings/${meetingTitle}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (response.ok) {
+          navigate(`/meeting/${meetingTitle}`);
+        } else {
+          alert('Meeting not found');
+        }
+      } catch (error) {
+        console.error('Error joining meeting:', error);
+      }
     }
   };
 

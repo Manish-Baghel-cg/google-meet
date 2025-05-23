@@ -45,9 +45,12 @@ export const VideoCall: React.FC = () => {
 
     socketRef.current = io('https://my-meet-124v.onrender.com', {
       withCredentials: true,
+      auth: {
+        token: localStorage.getItem('token')
+      }
     });
 
-    socketRef.current.emit('join-room', meetingId);
+    socketRef.current.emit('joinMeeting', parseInt(meetingId));
 
     socketRef.current.on('user-joined', ({ userId }) => {
       createPeerConnection(userId);
