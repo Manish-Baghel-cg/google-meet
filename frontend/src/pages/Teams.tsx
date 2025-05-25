@@ -7,13 +7,22 @@ interface Team {
   createdAt: string;
 }
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export const Teams: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamDescription, setNewTeamDescription] = useState('');
 
   useEffect(() => {
     fetchTeams();
+    fetchUsers();
   }, []);
 
   const fetchTeams = async () => {
@@ -32,6 +41,28 @@ export const Teams: React.FC = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('https://my-meet-124v.onrender.com/teams/users', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const handleUserSelect = (userId: number) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
+  };
+
   const createTeam = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -43,12 +74,14 @@ export const Teams: React.FC = () => {
         },
         body: JSON.stringify({
           name: newTeamName,
-          description: newTeamDescription
+          description: newTeamDescription,
+          userIds: selectedUserIds
         })
       });
       if (response.ok) {
         setNewTeamName('');
         setNewTeamDescription('');
+        setSelectedUserIds([]);
         fetchTeams();
       }
     } catch (error) {
@@ -83,6 +116,21 @@ export const Teams: React.FC = () => {
                 className="w-full p-3 rounded bg-gray-700"
                 rows={3}
               />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-300 mb-2">Add Users to Team</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {users.map(user => (
+                  <label key={user.id} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user.id)}
+                      onChange={() => handleUserSelect(user.id)}
+                    />
+                    <span>{user.name} ({user.email})</span>
+                  </label>
+                ))}
+              </div>
             </div>
             <button
               type="submit"
